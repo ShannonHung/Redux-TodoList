@@ -19,6 +19,12 @@ function createStore(reducer){
         //     });
         // };
     }
+    const subscribe = (listener) => {
+        listeners.push(listener)
+        return () => {
+          listeners = listeners.filter((l) => l !== listener)
+        }
+      }
     const dispatch=(action)=>{
         state = reducer(state, action)
         listeners.forEach((listen) => listen())
@@ -27,6 +33,7 @@ function createStore(reducer){
     return{
         getState,
         subScribe,
+        subscribe,
         dispatch
     }
 }
@@ -38,6 +45,43 @@ const REMOVE_TODO = 'REMOVE_TODO'
 const TOGGLE_TODO = 'TOGGLE_TODO'
 const ADD_GOAL = 'ADD_GOAL'
 const REMOVE_GOAL = 'REMOVE_GOAL'
+
+function addTodoAction (todo) {
+    return {
+        type:ADD_TODO,
+        todo,
+    }
+}
+function removeTodoAction (id) {
+    return {
+        type:REMOVE_TODO,
+        id,
+    }
+}
+function toggleTodoAction (id) {
+    return {
+      type: TOGGLE_TODO,
+      id,
+    }
+  }
+
+
+function addGoalAction (goal) {
+  return {
+    type: ADD_GOAL,
+    goal,
+  }
+}
+
+
+function removeGoalAction (id) {
+    return {
+      type: REMOVE_GOAL,
+      id,
+    }
+  }
+  
+
 function todo (state=[], action) {
     switch(action.type){
         case ADD_TODO:
@@ -75,15 +119,16 @@ function app (state={}, action){
 const store = createStore(app);
 
 //tell when the state change what we are going to do 
-store.subScribe=()=>{
-    console.log('The new state is ', store.getState);
-}
-//這時候回傳的State是一個object
-store.dispatch({
-    type: 'ADD_TODO',
-    todo: {
-        id: 0,
-        name: 'shannon hello',
-        complete: false
-    }
+store.subscribe(() => {
+  console.log('The new state is: ', store.getState())
 })
+
+//這時候回傳的State是一個object
+// store.dispatch({
+//     type: 'ADD_TODO',
+//     todo: {...}
+// })
+store.dispatch(addTodoAction({
+    id: 1,
+    name: 'loss 20 pounds'
+}))
